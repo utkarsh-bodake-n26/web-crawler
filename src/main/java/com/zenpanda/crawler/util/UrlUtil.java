@@ -23,6 +23,7 @@ public class UrlUtil {
     private static String getDomain(String url) throws URISyntaxException {
         URI uri = new URI(url);
         String domain = uri.getHost();
+        if (domain == null) throw new URISyntaxException(url, "host is null");
         return domain.startsWith("www.") ? domain.substring(4) : domain;
     }
 
