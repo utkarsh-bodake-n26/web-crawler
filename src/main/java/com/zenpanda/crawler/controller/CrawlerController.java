@@ -22,8 +22,7 @@ public class CrawlerController {
     }
 
     @GetMapping
-    public ResponseEntity<PageNode> crawl(@RequestParam String url,
-                                          @RequestParam Integer depth) {
+    public ResponseEntity<PageNode> crawl(@RequestParam String url) {
 
         PageNode pageNode = crawlerService.crawl(url);
         return ResponseEntity.ok(pageNode);

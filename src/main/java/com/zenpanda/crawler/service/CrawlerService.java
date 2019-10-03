@@ -1,11 +1,14 @@
 package com.zenpanda.crawler.service;
 
+import com.zenpanda.crawler.exception.InvalidUrlException;
 import com.zenpanda.crawler.model.PageNode;
 import com.zenpanda.crawler.util.UrlUtil;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -17,59 +20,71 @@ import java.util.stream.Collectors;
 @Service
 public class CrawlerService {
 
+    @Value("${jsoup.timeout}")
+    private Integer jsoupTimeout;
+
+    @Value("${jsoup.follow.redirects}")
+    private boolean jsoupFollowRedirects;
+
     public PageNode crawl(String startUrl) {
 
         // list of web pages to be examined
-        Stack<String> stack = new Stack<>();
-        stack.add(startUrl);
+        PageNode startNode = new PageNode(startUrl);
+        Stack<PageNode> stack = new Stack<>();
+        stack.add(startNode);
 
         // set of examined web pages
         Set<String> visitedUrls = new HashSet<>();
-        visitedUrls.add(startUrl);
+        visitedUrls.add(startNode.getUrl());
 
         while (!stack.isEmpty()) {
-            String url = stack.pop();
+            PageNode pageNode = stack.pop();
 
-            System.out.println(url);
+            System.out.println(pageNode.getUrl());
 
-            List<String> newUrls = fetchUrls(url);
+            List<PageNode> newPageNodes = fetchUrls(pageNode.getUrl());
 
-            for (String newUrl : newUrls) {
+            for (PageNode newPageNode : newPageNodes) {
 
-                if (!isUrlVisited(newUrl, visitedUrls)) {
-                    stack.add(newUrl);
-                    visitedUrls.add(newUrl);
+                if (!isUrlVisited(newPageNode.getUrl(), visitedUrls)) {
+                    pageNode.addNode(newPageNode);
+                    stack.add(newPageNode);
+                    visitedUrls.add(newPageNode.getUrl());
                 }
             }
         }
 
-        return null;
+        return startNode;
     }
 
     private boolean isUrlVisited(String url, Set<String> visitedUrls) {
         return visitedUrls.contains(url);
     }
 
-    private List<String> fetchUrls(String baseUrl) {
+    private List<PageNode> fetchUrls(String baseUrl) {
 
         try {
             Document doc = Jsoup.connect(baseUrl)
-                    .timeout(60000)
-                    .followRedirects(true)
+                    .timeout(jsoupTimeout)
+                    .followRedirects(jsoupFollowRedirects)
                     .get();
 
             return doc.select("a[href]").stream()
-                    .map(element -> element.attr("abs:href"))
-                    .filter(url -> {
-                        try {
-                            return UrlUtil.isValidUrl(url) && UrlUtil.isSameDomain(baseUrl, url);
-                        } catch (URISyntaxException e) {
-                            return false;
-                        }
-                    })
+                    .map(element -> new PageNode(element.attr("abs:href"), doc.title()))
+                    .filter(pageNode -> validateUrl(pageNode.getUrl(), baseUrl))
                     .collect(Collectors.toList());
-        } catch (Exception e) {
+        } catch (IllegalArgumentException e) {
+            throw new InvalidUrlException();
+        } catch (IOException e) {
             return new ArrayList<>();
+        }
+    }
+
+    private boolean validateUrl(String url, String baseUrl) {
+        try {
+            return UrlUtil.isValidUrl(url) && UrlUtil.isSameDomain(baseUrl, url);
+        } catch (URISyntaxException e) {
+            return false;
         }
     }
 }
