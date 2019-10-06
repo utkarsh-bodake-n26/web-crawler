@@ -65,14 +65,16 @@ Where:
     Incase mandatory query param missing or invalid format of url provided
     ```
 
-# Test cases
-
-- Unit Test cases have been added for the crawl module to check the functionality at the grass root level.
-
-### Running of application web server locally
+## Running of application web server locally
 1. Go to base directory of the project and Run ``mvn spring-boot:run`` which will start the application Tomcat web server listening on port 8080.
 2. All API's will be accessible with Base URL `http://localhost:8080/`.
 3. To quick test run: `curl -X GET 'http://localhost:8080/api/v1/crawler?url=http://mkbhd.com/'`
+
+
+## Test cases
+
+- Unit Test cases have been added for the crawl module to check the functionality at the grass root level.
+- Run tests: `mvn test`
 
 ## Environment Setup
 Install the following:
@@ -84,13 +86,10 @@ Install the following:
 * Clone this repository: `git@github.com:utkarsh-bodake-n26/web-crawler.git`
 * Change directory to: `cd web-crawler`
 
-### JAR
+## JAR
 Build project: `mvn clean install`
 
-### Running Test
-Run tests: `mvn test`
-
-### Artifacts
+## Artifacts
 1. Executable jar file: `./web-crawler/target/web-crawler-${version}-SNAPSHOT.jar`
 
 -----
