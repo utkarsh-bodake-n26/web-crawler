@@ -66,7 +66,9 @@ Where:
     ```
 
 ## Running of application web server locally
-1. Go to base directory of the project and Run ``mvn spring-boot:run`` which will start the application Tomcat web server listening on port 8080.
+1. Go to base directory of the project `cd web-crawler` and then run ``mvn spring-boot:run`` which will start the 
+application Tomcat web 
+server listening on port 8080.
 2. All API's will be accessible with Base URL `http://localhost:8080/`.
 3. To quick test run: `curl -X GET 'http://localhost:8080/api/v1/crawler?url=http://mkbhd.com/'`
 
