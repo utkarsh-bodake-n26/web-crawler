@@ -7,17 +7,18 @@ import java.net.URL;
 public class UrlUtil {
 
     public static boolean isValidUrl(String url) {
-        /* Try creating a valid URL */
+
         try {
             new URL(url).toURI();
             return true;
-        }
-
-        // If there was an Exception
-        // while creating URL object
-        catch (Exception e) {
+        } catch (Exception e) {
             return false;
         }
+    }
+
+    public static boolean isSameDomain(String url1,
+                                       String url2) throws URISyntaxException {
+        return getDomain(url1).equalsIgnoreCase(getDomain(url2));
     }
 
     private static String getDomain(String url) throws URISyntaxException {
@@ -25,10 +26,5 @@ public class UrlUtil {
         String domain = uri.getHost();
         if (domain == null) throw new URISyntaxException(url, "host is null");
         return domain.startsWith("www.") ? domain.substring(4) : domain;
-    }
-
-    public static boolean isSameDomain(String url1,
-                                       String url2) throws URISyntaxException {
-        return getDomain(url1).equalsIgnoreCase(getDomain(url2));
     }
 }

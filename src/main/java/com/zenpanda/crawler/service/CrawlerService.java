@@ -1,33 +1,36 @@
 package com.zenpanda.crawler.service;
 
-import com.zenpanda.crawler.exception.InvalidUrlException;
 import com.zenpanda.crawler.model.PageNode;
-import com.zenpanda.crawler.util.UrlUtil;
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.Stack;
-import java.util.stream.Collectors;
 
 @Service
 public class CrawlerService {
 
-    @Value("${jsoup.timeout}")
-    private Integer jsoupTimeout;
+    private final FetcherService fetcherService;
 
-    @Value("${jsoup.follow.redirects}")
-    private boolean jsoupFollowRedirects;
+    @Autowired
+    public CrawlerService(final FetcherService fetcherService) {
+        this.fetcherService = fetcherService;
+    }
 
+    /**
+     * Crawls the website in depth first manner tzo produce the sitemap.
+     *
+     * @param startUrl Base url from which the web crawler will start
+     * @return
+     */
     public PageNode crawl(String startUrl) {
 
-        // list of web pages to be examined
+        // initialize the start web page
         PageNode startNode = new PageNode(startUrl);
         Stack<PageNode> stack = new Stack<>();
         stack.add(startNode);
@@ -37,15 +40,14 @@ public class CrawlerService {
         visitedUrls.add(startNode.getUrl());
 
         while (!stack.isEmpty()) {
+
             PageNode pageNode = stack.pop();
-
-            System.out.println(pageNode.getUrl());
-
-            List<PageNode> newPageNodes = fetchUrls(pageNode.getUrl());
+            List<PageNode> newPageNodes = getPageNodes(pageNode.getUrl());
 
             for (PageNode newPageNode : newPageNodes) {
 
-                if (!isUrlVisited(newPageNode.getUrl(), visitedUrls)) {
+                if (!visitedUrls.contains(newPageNode.getUrl())) {
+                    // list of web pages to be examined
                     pageNode.addNode(newPageNode);
                     stack.add(newPageNode);
                     visitedUrls.add(newPageNode.getUrl());
@@ -56,34 +58,12 @@ public class CrawlerService {
         return startNode;
     }
 
-    private boolean isUrlVisited(String url, Set<String> visitedUrls) {
-        return visitedUrls.contains(url);
-    }
-
-    private List<PageNode> fetchUrls(String baseUrl) {
-
+    private List<PageNode> getPageNodes(String url) {
         try {
-            Document doc = Jsoup.connect(baseUrl)
-                    .timeout(jsoupTimeout)
-                    .followRedirects(jsoupFollowRedirects)
-                    .get();
-
-            return doc.select("a[href]").stream()
-                    .map(element -> new PageNode(element.attr("abs:href"), doc.title()))
-                    .filter(pageNode -> validateUrl(pageNode.getUrl(), baseUrl))
-                    .collect(Collectors.toList());
-        } catch (IllegalArgumentException e) {
-            throw new InvalidUrlException();
+            Document doc = fetcherService.fetchDocument(url);
+            return fetcherService.extractUrls(doc, url);
         } catch (IOException e) {
             return new ArrayList<>();
-        }
-    }
-
-    private boolean validateUrl(String url, String baseUrl) {
-        try {
-            return UrlUtil.isValidUrl(url) && UrlUtil.isSameDomain(baseUrl, url);
-        } catch (URISyntaxException e) {
-            return false;
         }
     }
 }
