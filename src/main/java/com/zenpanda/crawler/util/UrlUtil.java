@@ -6,6 +6,9 @@ import java.net.URL;
 
 public class UrlUtil {
 
+    /**
+     * Validates if the URL is in correct format or not.
+     */
     public static boolean isValidUrl(String url) {
 
         try {
@@ -16,11 +19,17 @@ public class UrlUtil {
         }
     }
 
+    /**
+     * Validates if the input URLs have the same domain name.
+     */
     public static boolean isSameDomain(String url1,
                                        String url2) throws URISyntaxException {
         return getDomain(url1).equalsIgnoreCase(getDomain(url2));
     }
 
+    /**
+     * Extracts the domain from the given URL.
+     */
     private static String getDomain(String url) throws URISyntaxException {
         URI uri = new URI(url);
         String domain = uri.getHost();

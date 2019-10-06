@@ -46,8 +46,8 @@ public class CrawlerService {
 
             for (PageNode newPageNode : newPageNodes) {
 
+                // If the url is not visited, then process it
                 if (!visitedUrls.contains(newPageNode.getUrl())) {
-                    // list of web pages to be examined
                     pageNode.addNode(newPageNode);
                     stack.add(newPageNode);
                     visitedUrls.add(newPageNode.getUrl());
@@ -58,6 +58,9 @@ public class CrawlerService {
         return startNode;
     }
 
+    /**
+     * Extract the urls from the given web page and construct PageNode's out of it.
+     */
     private List<PageNode> getPageNodes(String url) {
         try {
             Document doc = fetcherService.fetchDocument(url);

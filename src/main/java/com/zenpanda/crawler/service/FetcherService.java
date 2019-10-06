@@ -27,6 +27,9 @@ public class FetcherService {
     @Value("${jsoup.follow.redirects}")
     private boolean jsoupFollowRedirects;
 
+    /**
+     * Fetch the entire web page corresponding to the given URL.
+     */
     Document fetchDocument(String baseUrl) throws IOException {
 
         Log.info(baseUrl);
@@ -40,6 +43,10 @@ public class FetcherService {
         }
     }
 
+    /**
+     * Extract all the urls from the given document.
+     * Exclude urls which have different base domain.
+     */
     List<PageNode> extractUrls(Document doc, String baseUrl) {
 
         return doc.select(linkCssQuery).stream()
