@@ -21,8 +21,8 @@ many sub-child links and so on. Also we do not want to process any URL more than
 ```
 - Represents node in a graph.
 {
-	"url": "https://babylonhealth.com",
-	"title": "Babylon health",
+	"url": "http://crowdfireapp.com",
+	"title": "Crowdfireapp - Social Media Management, Simplified",
 	"nodes": [
 	    {... Child PageNode Entity...},
 	    ...
@@ -38,19 +38,19 @@ Where:
 - Structure: ```GET /api/v1/crawler```
 - Query params:
     ```
-    url="https://www.babylonhealth.com"
+    url="http://crowdfireapp.com"
     ```
 - Example using cURL request:
     ```
-	  curl -X GET 'http://localhost:8080/api/v1/crawler?url=https://babylonhealth.com'
+	  curl -X GET 'http://localhost:8080/api/v1/crawler?url=http://crowdfireapp.com'
     ```
     ```
     Success response
     
     HTTP status code: 200 OK - in case of success
     {
-    	"url": "https://babylonhealth.com",
-    	"title": "Babylon health",
+    	"url": "http://crowdfireapp.com",
+    	"title": "Crowdfireapp - Social Media Management, Simplified",
     	"nodes": [
     	    {... Child PageNode Entity...},
     	    ...
